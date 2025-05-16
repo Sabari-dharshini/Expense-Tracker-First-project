@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;0,900;1,600&display=swap">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Source Sans Pro", sans-serif;
+    }
+
+    body {
+      width: 100vw;
+      background-color: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 100px;
+    }
+
+    .container {
+      width: 800px;
+      background-color: #fff;
+      box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+      display: flex;
+      user-select: none;
+      margin-top: 20px;
+    }
+
+    .ledger {
+      background-color: #2f3542;
+      padding: 20px;
+      flex: 1;
+      color: white;
+    }
+
+    .ledger h2 {
+      text-transform: uppercase;
+      color: #feca57;
+    }
+
+    .ledger h2,
+    .ledger h4,
+    .ledger h1 {
+      font-weight: 488;
+      margin-bottom: 5px;
+      padding: 5px;
+    }
+
+    .inc-exp-container {
+      display: flex;
+      padding: 5px;
+      gap: 10px;
+    }
+
+    .inc-exp-container div {
+      text-align: center;
+      text-transform: uppercase;
+      padding: 20px;
+      font-size: 18px;
+      flex: 1;
+      border-radius: 2px;
+    }
+
+    .inc-exp-container div p {
+      font-size: 22px;
+    }
+
+    .inc-exp-container .inc {
+      border: 3px solid #1dd1a1;
+      color: #1dd1a1;
+    }
+
+    .inc-exp-container .exp {
+      border: 3px solid #ee5253;
+      color: #ee5253;
+    }
+
+    #form {
+      padding: 5px;
+      margin-top: 20px;
+    }
+
+    .form-control {
+      margin-top: 10px;
+    }
+
+    label {
+      display: inline-block;
+      margin: 10px 0;
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      border: 1px solid #dedede;
+      display: block;
+      width: 100%;
+      font-size: 16px;
+      padding: 10px;
+      outline: none;
+      border-radius: 2px;
+    }
+
+    .btn {
+      background-color: #2e86de;
+      color: white;
+      display: block;
+      width: 100%;
+      margin-top: 25px;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      font-weight: 600;
+      border-radius: 5px;
+    }
+
+    .transaction {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: scroll;
+    }
+
+    .transaction h3 {
+      text-transform: uppercase;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f1f1f1;
+      margin-bottom: 5px;
+    }
+
+    .trans {
+      list-style-type: none;
+    }
+
+    .trans li {
+      background-color: #fff;
+      color: #333;
+      box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 8px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+      padding: 10px;
+      margin: 10px 0;
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .trans li.inc {
+      border-left: 5px solid #1dd1a1;
+    }
+
+    .trans li.exp {
+      border-left: 5px solid #ee5253;
+    }
+
+    .btn-del {
+      position: absolute;
+      top: -10px;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-weight: 600;
+      color: #fff;
+      background-color: #e74c3c;
+      border: none;
+      font-size: 18px;
+      line-height: 20px;
+      cursor: pointer;
+      opacity: 0;
+    }
+
+    .trans li:hover .btn-del {
+      opacity: 1;
+    }
+
+    #analyzeBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #10ac84;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 15px 25px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    canvas {
+      max-width: 400px;
+      max-height: 250px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="ledger">
+      <h2>My Wallet</h2>
+      <h4>Your Balance</h4>
+      <h1 id="balance">$0.00</h1>
+      <div class="inc-exp-container">
+        <div class="inc">
+          <h4>Income</h4>
+          <p id="inc-amt">$0.00</p>
+        </div>
+        <div class="exp">
+          <h4>Expense</h4>
+          <p id="exp-amt">$0.00</p>
+        </div>
+      </div>
+      <form id="form">
+        <div class="form-control">
+          <label for="category">Category</label>
+          <select id="category" onchange="handleCategoryChange()" class="form-control">
+            <option value="" disabled selected>Select category</option>
+            <option value="Baby">Baby</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Bills">Bills</option>
+            <option value="Car">Car</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Education">Education</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Food">Food</option>
+            <option value="Health">Health</option>
+            <option value="Home">Home</option>
+            <option value="Insurance">Insurance</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Social">Social</option>
+            <option value="Sport">Sport</option>
+            <option value="Tax">Tax</option>
+            <option value="Telephone">Telephone</option>
+            <option value="Transportation">Transportation</option>
+            <option value="custom">Add New Category</option>
+          </select>
+        </div>
+        <div class="form-control" id="customCategory" style="display: none">
+          <label for="customCategoryInput">New Category</label>
+          <input type="text" id="customCategoryInput" placeholder="Enter custom category">
+        </div>
+        <div class="form-control">
+          <label for="amount">Amount (+ for income, - for expense)</label>
+          <input type="number" id="amount" placeholder="Enter amount...">
+        </div>
+        <button class="btn">Add Transaction</button>
+      </form>
+    </div>
+    <div class="transaction">
+      <h3>Transactions</h3>
+      <ul id="trans" class="trans"></ul>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="analyzeChart" style="display: none;"></canvas>
+    <canvas id="balanceLineChart" style="display: none;"></canvas>
+    <canvas id="donutChart" style="display: none;"></canvas>
+  </div>
+
+  <button id="analyzeBtn">Analyze</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const balance = document.querySelector("#balance");
+    const inc_amt = document.querySelector("#inc-amt");
+    const exp_amt = document.querySelector("#exp-amt");
+    const trans = document.querySelector("#trans");
+    const form = document.querySelector("#form");
+    const categorySelect = document.querySelector("#category");
+    const customCategoryDiv = document.querySelector("#customCategory");
+    const customCategoryInput = document.querySelector("#customCategoryInput");
+    const amount = document.querySelector("#amount");
+
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const chartCanvas = document.getElementById("analyzeChart");
+    const balanceLineCanvas = document.getElementById("balanceLineChart");
+    const donutCanvas = document.getElementById("donutChart");
+
+    let chartInstance, balanceLineChart, donutChart;
+    let transactions = JSON.parse(localStorage.getItem("trans")) || [];
+
+    function handleCategoryChange() {
+      customCategoryDiv.style.display = categorySelect.value === "custom" ? "block" : "none";
+    }
+
+    function loadTransactionDetails(transaction) {
+      const sign = transaction.amount < 0 ? "-" : "+";
+      const item = document.createElement("li");
+      item.classList.add(transaction.amount < 0 ? "exp" : "inc");
+      item.innerHTML = `
+        ${transaction.description}
+        <span>${sign}$${Math.abs(transaction.amount)}</span>
+        <button class="btn-del" onclick="removeTrans(${transaction.id})">x</button>
+      `;
+      trans.appendChild(item);
+    }
+
+    function removeTrans(id) {
+      if (confirm("Are you sure you want to delete this transaction?")) {
+        transactions = transactions.filter(transaction => transaction.id !== id);
+        updateLocalStorage();
+        config();
+      }
+    }
+
+    function updateAmount() {
+      const amounts = transactions.map(t => t.amount);
+      const total = amounts.reduce((a, b) => a + b, 0).toFixed(2);
+      const income = amounts.filter(a => a > 0).reduce((a, b) => a + b, 0).toFixed(2);
+      const expense = amounts.filter(a => a < 0).reduce((a, b) => a + b, 0).toFixed(2);
+      balance.innerText = `$${total}`;
+      inc_amt.innerText = `$${income}`;
+      exp_amt.innerText = `$${Math.abs(expense)}`;
+    }
+
+    function config() {
+      trans.innerHTML = "";
+      transactions.forEach(loadTransactionDetails);
+      updateAmount();
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const selectedCategory = categorySelect.value;
+      const customCat = customCategoryInput.value.trim();
+      const finalCategory = selectedCategory === "custom" ? customCat : selectedCategory;
+
+      if (finalCategory === "" || amount.value.trim() === "") {
+        alert("Please enter a category and amount");
+      } else {
+        const transaction = {
+          id: Date.now(),
+          description: finalCategory,
+          amount: +amount.value
+        };
+        transactions.push(transaction);
+        updateLocalStorage();
+        loadTransactionDetails(transaction);
+        categorySelect.value = "";
+        customCategoryInput.value = "";
+        customCategoryDiv.style.display = "none";
+        amount.value = "";
+        updateAmount();
+      }
+    });
+
+    function updateLocalStorage() {
+      localStorage.setItem("trans", JSON.stringify(transactions));
+    }
+
+    analyzeBtn.addEventListener("click", () => {
+      chartCanvas.style.display = "block";
+      balanceLineCanvas.style.display = "block";
+      donutCanvas.style.display = "block";
+
+      const amounts = transactions.map(t => t.amount);
+      const income = amounts.filter(a => a > 0).reduce((a, b) => a + b, 0);
+      const expense = amounts.filter(a => a < 0).reduce((a, b) => a + b, 0);
+
+      if (chartInstance) chartInstance.destroy();
+      if (balanceLineChart) balanceLineChart.destroy();
+      if (donutChart) donutChart.destroy();
+
+      chartInstance = new Chart(chartCanvas, {
+        type: 'bar',
+        data: {
+          labels: ['Income', 'Expense'],
+          datasets: [{
+            label: 'Amount ($)',
+            data: [income, Math.abs(expense)],
+            backgroundColor: ['#1dd1a1', '#ee5253']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Income vs Expense Overview'
+            }
+          }
+        }
+      });
+
+      let cumulative = 0;
+      const labels = transactions.map(t => new Date(t.id).toLocaleDateString());
+      const balanceData = transactions.map(t => (cumulative += t.amount));
+
+      balanceLineChart = new Chart(balanceLineCanvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Balance Over Time',
+            data: balanceData,
+            borderColor: '#2e86de',
+            fill: false,
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Cumulative Balance Over Time'
+            }
+          }
+        }
+      });
+
+      const categoryTotals = {};
+      transactions.forEach(t => {
+        if (t.amount < 0) {
+          const cat = t.description || 'Uncategorized';
+          if (!categoryTotals[cat]) categoryTotals[cat] = 0;
+          categoryTotals[cat] += Math.abs(t.amount);
+        }
+      });
+
+      donutChart = new Chart(donutCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(categoryTotals),
+          datasets: [{
+            data: Object.values(categoryTotals),
+            backgroundColor: [
+              '#ff7675', '#74b9ff', '#ffeaa7', '#55efc4',
+              '#fd79a8', '#a29bfe', '#fab1a0', '#81ecec'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Expense Breakdown by Category'
+            },
+            legend: {
+              position: 'right'
+            }
+          }
+        }
+      });
+    });
+
+    window.addEventListener("load", config);
+  </script>
+</body>
+</html>

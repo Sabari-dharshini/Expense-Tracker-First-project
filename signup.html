@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="image-section">
+    </div>
+    <div class="form-section">
+      <div class="form-box">
+        <h2>Create an account</h2>
+        <p class="small-text">Already have an account? <a href="login.html">Log in</a></p>
+
+        <form onsubmit="signup(event)" class="form">
+          <div class="name-fields">
+            <input type="text" id="firstname" placeholder="First Name" required>
+            <input type="text" id="lastname" placeholder="Last Name" required>
+          </div>
+          <input type="email" id="email" placeholder="Email" required>
+          <div class="password-wrapper">
+            <input type="password" id="password" placeholder="Enter your password" required>
+            <span class="toggle-password">👁️</span>
+          </div>
+          <div class="checkbox">
+            <input type="checkbox" id="terms" required>
+            <label for="terms">I agree to the <a href="#">Terms & Conditions</a></label>
+          </div>
+          <button type="submit" class="primary-btn">Create account</button>
+        </form>        
+
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyCUMsLk9TTbX_1rglKbzsV5c2ZoT3GDsW4",
+    authDomain: "expense-tracker-81e01.firebaseapp.com",
+    projectId: "expense-tracker-81e01",
+    storageBucket: "expense-tracker-81e01.firebasestorage.app",
+    messagingSenderId: "889095280188",
+    appId: "1:889095280188:web:01eec8e6f7791ff9149539",
+    measurementId: "G-TC54389WGF"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+  window.signup = function(event) {
+    event.preventDefault();
+  
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+  
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        window.location.href = "login.html";
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  }
+</script>
+  
+
+</body>
+</html>

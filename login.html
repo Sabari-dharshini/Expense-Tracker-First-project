@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="image-section">
+      <h2>Welcome Back!<br>We've missed you</h2>
+    </div>
+    <div class="form-section">
+      <div class="form-box">
+        <h2>Log in</h2>
+        <p class="small-text">Don't have an account? <a href="signup.html">Sign up</a></p>
+
+        <form onsubmit="login(event)" class="form">
+          <input type="email" id="email" placeholder="Email" required>
+          <div class="password-wrapper">
+            <input type="password" id="password" placeholder="Enter your password" required>
+            <span class="toggle-password">👁️</span>
+          </div>
+          <div class="checkbox">
+            <input type="checkbox" id="remember">
+            <label for="remember">Remember me</label>
+            <a href="forgotPassword.html" class="forgot-password">Forgot Password?</a>
+          </div>
+          <button type="submit" class="primary-btn">Log in</button>
+        </form>        
+
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyCUMsLk9TTbX_1rglKbzsV5c2ZoT3GDsW4",
+    authDomain: "expense-tracker-81e01.firebaseapp.com",
+    projectId: "expense-tracker-81e01",
+    storageBucket: "expense-tracker-81e01.firebasestorage.app",
+    messagingSenderId: "889095280188",
+    appId: "1:889095280188:web:01eec8e6f7791ff9149539",
+    measurementId: "G-TC54389WGF"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+  window.login = function(event) {
+    event.preventDefault();
+  
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+  
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        window.location.href = "main.html";
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  };
+</script>
+
+
+</body>
+</html>
